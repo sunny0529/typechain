@@ -2,7 +2,7 @@
 
 ### I. keystore - sign transaction 추가
 
-#### 1. src/blockchains/[체인이름]/keyStore.ts 에서, signTx() 에 코드 작성하기
+- 1. src/blockchains/[체인이름]/keyStore.ts 에서, signTx() 에 코드 작성하기
 
     ```jsx
     /*
