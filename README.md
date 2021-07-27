@@ -1,6 +1,6 @@
 ## KMS signTx 개발 고려사항
 
-### I. keystore - sign transaction 추가
+### 1. keystore - sign transaction 추가
 
 * 1. src/blockchains/[체인이름]/keyStore.ts 에서, signTx() 에 코드 작성하기
 
