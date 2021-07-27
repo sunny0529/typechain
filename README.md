@@ -1,10 +1,8 @@
-> toggle 다 열어보시고 빨간색, 노란색, 보라색으로 하이라이트된 부분이 다 구현됐는지 확인하시면 됩니다.
-
-## To Do
+## KMS signTx 개발 고려사항
 
 ### I. keystore - sign transaction 추가
 
-- 1. src/blockchains/[체인이름]/keyStore.ts 에서, signTx() 에 코드 작성하기
+#### 1. src/blockchains/[체인이름]/keyStore.ts 에서, signTx() 에 코드 작성하기
 
     ```jsx
     /*
@@ -94,7 +92,7 @@
             }
             ```
 
-- 2. src/keyStore.ts 에서, signTxFromKeyStore() 에 add blockchain
+#### 2. src/keyStore.ts 에서, signTxFromKeyStore() 에 add blockchain
 
     ```jsx
     export async function signTxFromKeyStore(
@@ -144,13 +142,13 @@
     }
     ```
 
-- 3. test/keystore/[체인이름].ts 에서, test file 만들어서 test 해보기
+#### 3. test/keystore/[체인이름].ts 에서, test file 만들어서 test 해보기
     - kms에서 구현한 signTx() rawTx값과 함께 호출하고
     - verifySignature할 수 있으면 true, false 반환하기
 
 ### Ⅱ. ledger - sign transaction 추가
 
-- 1. src/blockchains/[체인이름]/ledger.ts 에서, signTx() 에 코드 작성하기
+#### 1. src/blockchains/[체인이름]/ledger.ts 에서, signTx() 에 코드 작성하기
 
     ```jsx
     /*
@@ -249,7 +247,7 @@
             }
             ```
 
-- 2. src/ledger.ts 에서, signTxFromLedger() 에 add blockchain
+#### 2. src/ledger.ts 에서, signTxFromLedger() 에 add blockchain
 
     ```jsx
     export async function signTxFromLedger(
@@ -298,15 +296,16 @@
     }
     ```
 
-- 3. test/ledger/[체인이름].ts 에서, test file 만들어서 test 해보기
+#### 3. test/ledger/[체인이름].ts 에서, test file 만들어서 test 해보기
     - kms에서 구현한 signTx() rawTx값과 함께 호출하고
     - verifySignature할 수 있으면 true, false 반환하기
 
 ### III. 주의 사항
 
-- keystore의 signTx()와 ledger의 signTx()가 같은 rawTx를 input으로 받아서 같은 output을 return하도록 구현해야 함
-- trnasaction type에 추가해야하는 것들 - delegate와 undelegate
-- error 처리
+#### 1. keystore의 signTx()와 ledger의 signTx()가 같은 rawTx를 input으로 받아서 같은 output을 return하도록 구현해야 함
+#### 2. trnasaction type에 추가해야하는 것들 - delegate와 undelegate
+#### 3. 체인마다 예외가 되는 사항들 정리하기 (front에서 hint로 주석 달아야 함)
+#### 4. error 처리
     - 최종적으로 transaction send는 안되는데, sign까지 잘되거나 verifySignature까지도 true로 잘 되는 경우들을 에러 처리해야 한다.
     - [있을 수 있는 대표적인 상황들] 이 중에서 보라색 하이라이트는 부분은 꼭 확인하기
 
@@ -396,4 +395,3 @@
                 ```
 
         2. 다른 field들도 다른 type넣으면 어떻게 되는지 test해보기
-- 체인마다 예외가 되는 사항들 정리하기 (front에서 hint로 주석 달아야 함)
