@@ -6,6 +6,94 @@
 
 - 1. src/blockchains/[체인이름]/keyStore.ts 에서, signTx() 에 코드 작성하기
 
+    ```jsx
+    /*
+      static signTx(node: BIP32Interface, rawTx: RawTx): SignedTx {
+        // ...
+      }
+    */
+    ```
+
+    - transaction instruction type에 따라 1. transaction을 생성하여 2. transaction에 sign한 후 3. signedTx를 반환하는 함수를 구현하면 된다.
+    - transaction instruction type을 인자로 넣는 이유는 어떤 종류의 transaction이 들어오든 signTx()는 각 상황에 맞게 transaction에 sign하는 기능을 할 수 있도록 확장 가능해야 하기 때문이다.
+    - input으로 들어오는 rawTx의 대략적인 형태
+
+        ```jsx
+        const TRANSFER = 0;
+        const DELEGATE = 1;
+
+        rarTx: RawTx = {
+              recentBlockHash, // (recentBlockHash는 예시) transaction instruction 종류에 상관없이 공통적으로 사용되는 값들 넣기
+              ixs: [ // instruction을 배열로 입력하는 형식
+                {
+                  amount: "1", // 각 transaction type 마다 필요한 값 입력
+                  transactionType: TRANSFER, // transaction type
+                },
+                {
+                  amount: "1", // 각 transaction type 마다 필요한 값 입력
+                  gas: "3000000", // 각 transaction type 마다 필요한 값 입력
+                  transactionType: DELEGATE, // transaction type
+                },
+                //... add new transaction instructions
+              ],
+            }
+        ```
+
+    1. transaction 생성
+        - 한번에 여러 종류의 instruction들을 모아서 하나의 transaction으로 만들 수 있는 경우
+
+            ```jsx
+            // 각 instruction type에 맞게 instruction 생성해서 반환하는 함수
+            function createInstruction(ix) { 
+              switch (ix.transactionType) {
+                case 0: {
+                  // transfer
+                  return transactions.transfer(ix.amount);
+                }
+                case 1: {
+                  // delegate
+                  return transactions.functionCall(
+            				ix.gas,
+                    ix.amount
+                  );
+                }
+                default:
+                  break;
+              }
+            throw new Error("Create instrauction error");
+            }
+
+            // rawTx 입력으로 받은 여러 개의 instruction을 하나의 transaction으로 만들어 반환하는 함수 
+            function createTransaction(rawTx) { // 
+            	try {
+            	    const transaction = new Transaction({
+            	      recentBlockhash: rawTx.recentBlockhash,
+            	    });
+            	    for (let i = 0; i < rawTx.ixs.length; i += 1) {
+            	      transaction.add(createInstruction(rawTx.ixs[i]));
+            	    }
+            	    return transaction;
+            	  } catch (error) {
+            	    throw new Error(error);
+            	  }
+            }
+            ```
+
+        - 만약 keystore와 ledger에서 createTransaction 코드가 동일하다면 하나로 빼서 사용하기
+
+            src/blockchains/[체인이름]/createTransaction.ts 로 따로 빼기
+
+    2. transaction에 sign 코드 작성
+    3. signedTx를 반환
+        - input으로 받았던 rawTx과, sign된 transaction을 반환하면 된다.
+
+            ```jsx
+            SignedTx {
+              rawTx: RawTx;
+              signedTx?: any;
+            }
+            ```
+
 - 2. src/keyStore.ts 에서, signTxFromKeyStore() 에 add blockchain
 
     ```jsx
@@ -211,6 +299,8 @@
     ```
 
 - 3. test/ledger/[체인이름].ts 에서, test file 만들어서 test 해보기
+    - kms에서 구현한 signTx() rawTx값과 함께 호출하고
+    - verifySignature할 수 있으면 true, false 반환하기
 
 ### III. 주의 사항
 
